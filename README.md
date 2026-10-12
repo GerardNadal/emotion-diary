@@ -1,6 +1,8 @@
-# Diario emocional · Fundamentos técnicos
+# Dentro · Diario emocional
 
-Demo para una única empresa. Implementa autenticación, directorio, equipos, responsables, permisos y dashboards básicos para los tres roles. El diario, las estadísticas, las rachas y la IA quedan fuera de esta fase. Las tarjetas de los dashboards son estructuras de navegación, no contienen datos emocionales ficticios.
+Aplicación interna para una única empresa. Implementa autenticación, directorio, equipos, responsables, permisos e interfaces responsive para los tres roles. La fase 2 añade el espacio personal, un registro emocional de vista previa, historial, calendario, evolución, recursos y perfil. El almacenamiento del diario, las estadísticas, las rachas, las recompensas y la IA se conectarán en próximas fases. No se muestran estadísticas emocionales ficticias.
+
+Consulta las pantallas y los puntos de integración en [docs/interfaces.md](docs/interfaces.md).
 
 Consulta las decisiones y el modelo de autorización en [docs/architecture.md](docs/architecture.md).
 
@@ -117,7 +119,7 @@ El `config.toml` configura el entorno local; **no se aplica automáticamente a A
 2. Crea empleados seleccionando su equipo. No se comparte una contraseña: cada nueva cuenta solicita «Recuperar acceso o establecer mi contraseña» desde el login.
 3. Abre el correo en Mailpit (URL indicada por `supabase status`) o en el buzón real. Usa el enlace, establece una contraseña y vuelve al login. Un enlace usado o caducado debe solicitarse de nuevo.
 4. Entra como responsable: verás solo tus empleados y equipos. Comprueba que no puedes acceder por URL directa a un empleado de otro equipo ni cambiar roles. Un traslado exige que seas responsable tanto del origen como del destino.
-5. Entra como empleado: solo verás «Mi espacio». `/company`, `/team` y `/admin/users` deben redirigir a `/employee`.
+5. Entra como empleado: verás «Mi espacio», «Mi diario», «Mi evolución», «Para ti» y «Mi perfil». `/company`, `/team` y `/admin/users` deben redirigir a `/employee`. Los responsables y administradores también disponen de su espacio personal desde `/journal`.
 6. Mantén una sesión de empleado abierta en un navegador y desactívalo desde otra sesión de empresa. En su siguiente solicitud perderá el acceso. Reactívalo desde el directorio.
 7. Desactiva un responsable: se eliminan sus asignaciones. Reactivarlo requiere volver a asignarlas.
 8. Prueba cierre de sesión, acceso sin sesión a las rutas privadas y cambio de contraseña. No debe existir registro público ni acceso a diarios individuales desde administración.

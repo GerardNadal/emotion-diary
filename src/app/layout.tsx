@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Diario emocional", template: "%s · Diario emocional" },
+  title: { default: "Dentro · Diario emocional", template: "%s · Dentro" },
   description: "Espacio privado de bienestar de la empresa.",
+  icons: { icon: "/icon.svg" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
