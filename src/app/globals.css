@@ -439,7 +439,7 @@ a.group\/button {
   color: var(--muted-foreground);
   margin-top: 13px;
 }
-.emotion-picker[data-slot="toggle-group"] {
+.emotion-picker {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   width: 100%;
@@ -447,7 +447,7 @@ a.group\/button {
   gap: 15px;
   margin: 27px auto 0;
 }
-.emotion-option[data-slot="toggle-group-item"] {
+.emotion-option {
   display: flex;
   flex-direction: column;
   gap: 13px;
@@ -481,11 +481,11 @@ a.group\/button {
 [data-emotion="mint"] {
   --emotion-background: #d9f0e2;
 }
-.emotion-option[data-slot="toggle-group-item"]:hover {
+.emotion-option:hover {
   transform: translateY(-3px);
   background: var(--emotion-background);
 }
-.emotion-option[data-slot="toggle-group-item"][aria-pressed="true"] {
+.emotion-option[aria-pressed="true"] {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px #ffffffaa;
   background: var(--emotion-background);
@@ -1379,11 +1379,11 @@ input[type="range"]::-moz-range-thumb {
   .mood-panel > p {
     font-size: 12px;
   }
-  .emotion-picker[data-slot="toggle-group"] {
+  .emotion-picker {
     gap: 7px;
     margin-top: 20px;
   }
-  .emotion-option[data-slot="toggle-group-item"] {
+  .emotion-option {
     height: 80px;
     border-radius: 13px;
     gap: 10px;
@@ -1540,10 +1540,10 @@ input[type="range"]::-moz-range-thumb {
   .mood-panel {
     padding-inline: 10px;
   }
-  .emotion-picker[data-slot="toggle-group"] {
+  .emotion-picker {
     gap: 4px;
   }
-  .emotion-option[data-slot="toggle-group-item"] {
+  .emotion-option {
     font-size: 9px;
   }
   .emotion-face {

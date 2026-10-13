@@ -1,14 +1,10 @@
-"use client";
-import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Leaf } from "lucide-react";
 import { PageHeading } from "@/components/page-heading";
 import { buttonVariants } from "@/components/ui/button";
-import { EmotionPicker } from "./emotion-picker";
-import type { Emotion } from "./emotions";
+import { MoodShortcuts } from "./mood-shortcuts";
 
 export function PersonalHome({ name }: { name: string }) {
-  const [emotion, setEmotion] = useState<Emotion | "">("");
   return (
     <>
       <PageHeading
@@ -18,11 +14,8 @@ export function PersonalHome({ name }: { name: string }) {
       <section className="mood-panel" aria-labelledby="mood-title">
         <h2 id="mood-title">¿Cómo te sientes hoy?</h2>
         <p>Todas las emociones tienen su lugar.</p>
-        <EmotionPicker value={emotion} onChange={setEmotion} />
-        <Link
-          className={buttonVariants()}
-          href={`/journal/new${emotion ? `?emotion=${emotion}` : ""}`}
-        >
+        <MoodShortcuts />
+        <Link className={buttonVariants()} href="/journal/new">
           Explorar mi diario
           <ArrowRight data-icon="inline-end" />
         </Link>

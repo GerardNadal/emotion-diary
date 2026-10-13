@@ -13,10 +13,10 @@ export function EmotionPicker({
 }) {
   return (
     <ToggleGroup
-      className="emotion-picker"
+      className="reason-picker"
       value={value ? [value] : []}
       onValueChange={(values) => onChange((values[0] as Emotion) ?? "")}
-      aria-label="Cómo te sientes"
+      aria-label="Emoción específica"
       aria-invalid={invalid}
       aria-describedby={invalid ? "emotion-error" : undefined}
     >
@@ -24,13 +24,10 @@ export function EmotionPicker({
         <ToggleGroupItem
           key={emotion.value}
           value={emotion.value}
-          className="emotion-option"
           aria-label={emotion.label}
-          data-emotion={emotion.color}
+          variant="outline"
         >
-          <span className="emotion-face" aria-hidden="true">
-            {emotion.emoji}
-          </span>
+          <span aria-hidden="true">{emotion.emoji}</span>
           <span>{emotion.label}</span>
         </ToggleGroupItem>
       ))}

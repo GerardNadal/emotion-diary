@@ -1,15 +1,15 @@
 # Interfaces · Fase 2
 
-Dentro usa una identidad ligera: fondos claros, lavanda para el registro, menta y melocotón para acentos, tipografía Geist y navegación con iconos Lucide. La pantalla de inicio se limita a emoción, semana y una pausa. Los campos menos frecuentes están plegados. No se usan fotos, registro público ni funciones sociales.
+Dentro usa una identidad ligera: fondos claros, lavanda para el registro, menta y melocotón para acentos, tipografía Geist y navegación con iconos Lucide. La pantalla de inicio se limita a estado de ánimo, semana y una pausa. Los campos menos frecuentes están plegados. No se usan fotos, registro público ni funciones sociales.
 
 ## Pantallas y datos
 
 | Ruta | Pantalla | Comportamiento actual |
 | --- | --- | --- |
 | `/login`, `/recover`, `/update-password` | Acceso y contraseña | Acciones de autenticación existentes; sin registro público |
-| `/employee` | Inicio del empleado | Selector emocional, semana sin datos y racha pendiente |
+| `/employee` | Inicio del empleado | Cinco estados de ánimo; la primera pulsación abre el formulario con el estado preseleccionado; semana sin datos y racha pendiente |
 | `/journal` | Espacio personal de cualquier rol | El mismo inicio privado; disponible también para administradores |
-| `/journal/new` | Registro de vista previa | Emoción, intensidad, motivos laborales y personales, reflexión y detalles opcionales; revisión sin guardar |
+| `/journal/new` | Registro de vista previa | Estado de ánimo independiente de la emoción específica (tristeza, alegría, ansiedad, calma o enfado), intensidad de esa emoción, motivos laborales y personales, reflexión y detalles opcionales; revisión sin guardar |
 | `/journal/history` | Historial | Vistas de tarjetas, tabla y calendario; sin entradas ficticias |
 | `/insights` | Evolución personal | Calendario navegable y espacios para gráficos y recompensas pendientes |
 | `/recommendations` | Recursos | Pausa general, recomendaciones de IA y música pendientes |

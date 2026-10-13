@@ -17,33 +17,42 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { EmotionPicker } from "./emotion-picker";
-import { emotions, reasonGroups, type Emotion } from "./emotions";
+import { MoodPicker } from "./mood-picker";
+import {
+  moods,
+  emotions,
+  reasonGroups,
+  type Mood,
+  type Emotion,
+} from "./emotions";
 
-export function EmotionForm({
-  initialEmotion = "",
-}: {
-  initialEmotion?: Emotion | "";
-}) {
-  const [emotion, setEmotion] = useState<Emotion | "">(initialEmotion);
+export function EmotionForm({ initialMood = "" }: { initialMood?: Mood | "" }) {
+  const [mood, setMood] = useState<Mood | "">(initialMood);
+  const [emotion, setEmotion] = useState<Emotion | "">("");
   const [intensity, setIntensity] = useState(3);
   const [reasons, setReasons] = useState<string[]>([]);
   const [reflection, setReflection] = useState("");
   const [activity, setActivity] = useState("");
   const [reaction, setReaction] = useState("");
   const [support, setSupport] = useState("");
-  const [invalid, setInvalid] = useState(false);
+  const [invalidMood, setInvalidMood] = useState(false);
+  const [invalidEmotion, setInvalidEmotion] = useState(false);
   const [review, setReview] = useState(false);
-  const picker = useRef<HTMLFieldSetElement>(null);
+  const moodPicker = useRef<HTMLFieldSetElement>(null);
+  const emotionPicker = useRef<HTMLFieldSetElement>(null);
   function submit(event: FormEvent) {
     event.preventDefault();
-    if (!emotion) {
-      setInvalid(true);
-      picker.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    if (!mood || !emotion) {
+      setInvalidMood(!mood);
+      setInvalidEmotion(!emotion);
+      const missing = !mood ? moodPicker : emotionPicker;
+      missing.current?.querySelector<HTMLButtonElement>("button")?.focus();
       return;
     }
     setReview(true);
   }
   const selected = emotions.find((item) => item.value === emotion);
+  const selectedMood = moods.find((item) => item.value === mood);
   return (
     <div className="journal-form-wrap">
       <Alert className="preview-notice">
@@ -58,19 +67,28 @@ export function EmotionForm({
           <div className="review-heading">
             <span
               className="emotion-face"
-              data-emotion={selected?.color}
+              data-emotion={selectedMood?.color}
               aria-hidden="true"
             >
-              {selected?.emoji}
+              {selectedMood?.emoji}
             </span>
             <div>
               <h2 id="review-title">Así has descrito tu día</h2>
               <p>
-                {selected?.label} · Intensidad {intensity} de 5
+                {selectedMood?.label} · {selected?.label} · Intensidad{" "}
+                {intensity} de 5
               </p>
             </div>
           </div>
           <dl className="review-details">
+            <div>
+              <dt>Estado de ánimo</dt>
+              <dd>{selectedMood?.label}</dd>
+            </div>
+            <div>
+              <dt>Emoción específica</dt>
+              <dd>{selected?.label}</dd>
+            </div>
             <div>
               <dt>Motivos</dt>
               <dd>
@@ -112,17 +130,33 @@ export function EmotionForm({
       ) : (
         <form onSubmit={submit}>
           <FieldGroup>
-            <FieldSet className="form-emotions" ref={picker}>
-              <FieldLegend>¿Cómo te sientes hoy?</FieldLegend>
-              <EmotionPicker
-                value={emotion}
-                invalid={invalid}
+            <FieldSet className="form-emotions" ref={moodPicker}>
+              <FieldLegend>Estado de ánimo</FieldLegend>
+              <MoodPicker
+                value={mood}
+                invalid={invalidMood}
                 onChange={(value) => {
-                  setEmotion(value);
-                  setInvalid(false);
+                  setMood(value);
+                  setInvalidMood(false);
                 }}
               />
-              {invalid ? (
+              {invalidMood ? (
+                <p id="mood-error" className="field-error" role="alert">
+                  Elige un estado de ánimo para continuar.
+                </p>
+              ) : null}
+            </FieldSet>
+            <FieldSet ref={emotionPicker}>
+              <FieldLegend>Emoción específica</FieldLegend>
+              <EmotionPicker
+                value={emotion}
+                invalid={invalidEmotion}
+                onChange={(value) => {
+                  setEmotion(value);
+                  setInvalidEmotion(false);
+                }}
+              />
+              {invalidEmotion ? (
                 <p id="emotion-error" className="field-error" role="alert">
                   Elige una emoción para continuar.
                 </p>

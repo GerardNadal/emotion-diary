@@ -1,5 +1,5 @@
 import { Brand } from "@/components/brand";
-import { emotions } from "@/modules/journal/emotions";
+import { moods } from "@/modules/journal/emotions";
 
 export const dynamic = "force-dynamic";
 export default function AuthLayout({
@@ -22,9 +22,9 @@ export default function AuthLayout({
             sientes.
           </p>
           <div className="auth-emotions" aria-hidden="true">
-            {emotions.map((emotion) => (
-              <span key={emotion.value} data-emotion={emotion.color}>
-                {emotion.emoji}
+            {moods.map((mood) => (
+              <span key={mood.value} data-emotion={mood.color}>
+                {mood.emoji}
               </span>
             ))}
           </div>
