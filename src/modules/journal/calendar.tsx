@@ -127,8 +127,8 @@ export function EmotionalCalendar({
         <Circle aria-hidden="true" />
         {loading
           ? "Consultando el mes…"
-          : activityDays ? "Cada marca es un día de actividad válida. Descansar también tiene su lugar."
-          : "Todos los ánimos del día, sin elegir uno por ti. El número indica cuántas entradas hay; selecciona el día para leerlas."}
+          : activityDays ? "Días con actividad"
+          : "El número indica las entradas del día."}
       </p>
     </section>
   );

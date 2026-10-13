@@ -75,7 +75,7 @@ export function PersonalInsights() {
     <>
       <PageHeading
         title="Mi evolución"
-        description="Conocerte lleva tiempo. Mira tu camino con perspectiva, a tu ritmo."
+        description="Mira tu camino con perspectiva."
         action={
           <Link
             className={buttonVariants({ variant: "outline" })}
@@ -154,7 +154,7 @@ export function PersonalInsights() {
         <div className="evolution-stack">
           <p className="metric-note" role="status">
             Del {data.statistics.from} al {data.statistics.to} ·{" "}
-            {data.progress.timezone} · Solo tú puedes ver estos datos.
+            {data.progress.timezone}
           </p>
           <EvolutionCharts stats={data.statistics} />
           <section aria-labelledby="emotional-calendar-heading">
@@ -162,11 +162,10 @@ export function PersonalInsights() {
               id="emotional-calendar-heading"
               className="evolution-section-heading"
             >
-              Tu calendario emocional
+              Calendario emocional
             </h2>
             <p className="metric-note">
-              La fecha de cada momento registrado. Selecciona un día para ver
-              todas sus entradas y abrir su detalle.
+              Selecciona un día para ver sus entradas.
             </p>
             <CalendarPreview
               key={data.progress.timezone}
@@ -176,11 +175,10 @@ export function PersonalInsights() {
           </section>
           <section aria-labelledby="activity-heading">
             <h2 id="activity-heading" className="evolution-section-heading">
-              Momentos de cuidado
+              Actividad
             </h2>
             <p className="metric-note">
-              La fecha en la que dedicaste tiempo a crear una entrada o
-              completar una reflexión. Puede ser distinta de la fecha emocional.
+              Días de actividad, según cuándo creaste o completaste una entrada.
             </p>
             <ProgressPanel
               key={data.progress.timezone}
@@ -190,9 +188,7 @@ export function PersonalInsights() {
           <details className="surface">
             <summary>Tu zona horaria</summary>
             <p className="metric-note">
-              La guardamos entre dispositivos. Al cambiarla, los momentos
-              emocionales se agrupan en la nueva zona; los días de actividad ya
-              registrados conservan su fecha. Los nuevos usan esta zona.
+              El cambio agrupa las entradas en la nueva zona. Los días de actividad anteriores conservan su fecha.
             </p>
             <form className="evolution-filters" onSubmit={saveZone}>
               <Field>

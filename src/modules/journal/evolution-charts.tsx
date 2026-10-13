@@ -6,6 +6,7 @@ import {
   reasonLabel,
 } from "./emotions";
 import { descriptiveTrend } from "./evolution";
+import { statisticsDayCount } from "./dates";
 import type { Statistics } from "./evolution-types";
 
 export function dayLabel(day: string) {
@@ -39,14 +40,11 @@ function Timeline({
     <section className="surface evolution-chart">
       <h2>
         {mood
-          ? "Tu estado de ánimo, día a día"
-          : "La intensidad de lo que sientes"}
+          ? "Ánimo diario"
+          : "Intensidad diaria"}
       </h2>
       <p className="metric-note">
-        {mood
-          ? "Ánimo general: de muy mal a muy bien."
-          : "Intensidad: de muy baja a muy alta, sea cual sea la emoción."}{" "}
-        Cada punto es la media de las entradas de ese día.
+        Media de las entradas de cada día.
       </p>
       <svg
         viewBox="0 0 760 212"
@@ -98,8 +96,7 @@ function Timeline({
         </text>
       </svg>
       <p className="metric-note">
-        Los huecos indican días sin registros. No equivalen a un ánimo neutral
-        ni a intensidad cero.
+        Huecos: días sin registros.
       </p>
     </section>
   );
@@ -132,14 +129,11 @@ function Distribution({
     <section className="surface">
       <h2>
         {kind === "emotion"
-          ? "Las emociones que aparecen"
+          ? "Emociones"
           : "Intensidad de tus registros"}
       </h2>
       <p className="metric-note">
-        {kind === "emotion"
-          ? "Las nueve emociones, ordenadas por frecuencia."
-          : "Frecuencia en la escala de 1 a 5."}{" "}
-        Porcentaje sobre las entradas, no sobre los días.
+        Porcentaje de entradas.
       </p>
       <div className="distribution-list">
         {options.map((o) => {
@@ -197,8 +191,7 @@ export function EvolutionCharts({ stats }: { stats: Statistics }) {
           <strong>{stats.current.recorded_days}</strong>
           <h2>Días con registros</h2>
           <p className="metric-note">
-            De {stats.days.length} días · varias entradas cuentan como un solo
-            día
+            De {statisticsDayCount(stats.days)} días
           </p>
         </section>
         <section className="surface">
@@ -207,27 +200,26 @@ export function EvolutionCharts({ stats }: { stats: Statistics }) {
           <p className="metric-note">
             {most[0]
               ? `${most[0].count} entradas por emoción${most.filter((d) => d.count === most[0].count).length > 1 ? " · frecuencia compartida" : ""}`
-              : "Cada emoción tiene su lugar."}
+              : ""}
           </p>
         </section>
       </div>
       <section className="surface trend-note">
-        <h2>Una mirada a tus registros</h2>
+        <h2>Tendencia</h2>
         <p>{descriptiveTrend(stats)}</p>
       </section>
       {!stats.current.entries ? (
         <section className="surface">
-          <h2>Este período está por escribir</h2>
+          <h2>Sin entradas en este período</h2>
           <p className="metric-note">
-            Prueba otro período o registra un momento cuando lo necesites. No
-            rellenamos los días vacíos.
+            Selecciona otro período o registra una entrada.
           </p>
         </section>
       ) : (
         <>
           <Timeline stats={stats} metric="mood_average" />
           <section className="surface">
-            <h2>Cómo se reparte tu ánimo</h2>
+            <h2>Distribución del ánimo</h2>
             <div className="mood-distribution">
               {moods.map((m) => {
                 const n =
@@ -256,10 +248,9 @@ export function EvolutionCharts({ stats }: { stats: Statistics }) {
           </div>
           <Timeline stats={stats} metric="intensity_average" />
           <section className="surface">
-            <h2>Lo que acompaña a tus emociones</h2>
+            <h2>Motivos más frecuentes</h2>
             <p className="metric-note">
-              Los ocho motivos más repetidos. Describen lo que has indicado, sin
-              establecer causas.
+              Los ocho motivos más registrados.
             </p>
             {stats.triggers.length ? (
               <ol className="trigger-list">
@@ -293,7 +284,7 @@ export function EvolutionCharts({ stats }: { stats: Statistics }) {
         </>
       )}
       <section className="surface">
-        <h2>Dos períodos, con perspectiva</h2>
+        <h2>Comparación de períodos</h2>
         <p className="metric-note">
           {dayLabel(stats.from)} – {dayLabel(stats.to)} frente a{" "}
           {dayLabel(stats.previous_from)} – {dayLabel(stats.previous_to)} (
@@ -342,7 +333,7 @@ export function EvolutionCharts({ stats }: { stats: Statistics }) {
         </p>
       </section>
       <details className="surface metric-method">
-        <summary>Cómo leer estas estadísticas y ver los datos</summary>
+        <summary>Cálculo y datos diarios</summary>
         <p className="metric-note">
           Usamos la fecha emocional y tu zona horaria guardada. Todas las
           entradas del día participan en su media; un día con muchas entradas no

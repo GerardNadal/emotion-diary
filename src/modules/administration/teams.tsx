@@ -2,7 +2,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { ActionForm } from "@/components/forms/action-form";
@@ -42,11 +41,6 @@ export function TeamManagement({
     <>
       <PageHeading
         title={company ? "Equipos y responsables" : "Mis equipos"}
-        description={
-          company
-            ? "Organiza a las personas y asigna a quienes las acompañan."
-            : "Los equipos bajo tu responsabilidad."
-        }
       />
       {company ? (
         <details className="surface">
@@ -72,11 +66,6 @@ export function TeamManagement({
           <Card key={team.id}>
             <CardHeader>
               <CardTitle>{team.name}</CardTitle>
-              <CardDescription>
-                {company
-                  ? "Gestionar nombre y responsables."
-                  : "Tienes permiso para administrar sus empleados."}
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-6">
@@ -195,7 +184,7 @@ export function TeamManagement({
             icon={UsersRound}
             title={
               company
-                ? "Todo empieza con un equipo"
+                ? "Sin equipos"
                 : "Sin equipos asignados todavía"
             }
             description={

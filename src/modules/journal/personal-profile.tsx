@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LockKeyhole, KeyRound } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { PageHeading } from "@/components/page-heading";
 import { buttonVariants } from "@/components/ui/button";
 import { roleLabels } from "@/modules/auth/roles";
@@ -21,7 +21,6 @@ export function PersonalProfile({
     <>
       <PageHeading
         title="Mi perfil"
-        description="Tu cuenta y tu espacio personal."
       />
       <section className="surface profile-surface">
         <div className="profile-heading">
@@ -59,11 +58,6 @@ export function PersonalProfile({
           Cambiar contraseña
         </Link>
       </section>
-      <p className="privacy-callout">
-        <LockKeyhole aria-hidden="true" />
-        Tu diario personal será privado, también frente a los responsables y la
-        administración de empresa.
-      </p>
     </>
   );
 }

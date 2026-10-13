@@ -17,8 +17,7 @@ export default async function NewUserPage() {
   return (
     <>
       <PageHeading
-        title="Una nueva persona"
-        description="Prepara su acceso y dale un lugar en el equipo."
+        title="Añadir persona"
         action={
           <Link
             href="/admin/users"
@@ -43,14 +42,9 @@ export default async function NewUserPage() {
         </Card>
         <aside className="form-aside">
           <LockKeyhole aria-hidden="true" />
-          <h2>Un acceso personal y seguro</h2>
+          <h2>Establecer contraseña</h2>
           <p>
-            La persona establecerá su contraseña desde «Recuperar acceso». No es
-            necesario compartir credenciales.
-          </p>
-          <p>
-            Los permisos administrativos nunca dan acceso a diarios
-            individuales.
+            La persona establecerá su contraseña desde «Recuperar acceso».
           </p>
         </aside>
       </div>

@@ -40,11 +40,11 @@ export function descriptiveTrend(stats: Statistics) {
   const a = stats.current;
   const b = stats.previous;
   if (!a.entries)
-    return "Todavía no hay registros en este período. Puedes empezar cuando te apetezca.";
+    return "Todavía no hay registros en este período.";
   if (a.recorded_days < 3 || b.recorded_days < 3)
-    return "Hay pocos días registrados para describir un cambio entre períodos. Cada momento cuenta, sin necesidad de completar los días vacíos.";
+    return "Hay pocos días registrados para comparar: se necesitan tres en cada período.";
   const delta = a.mood_average! - b.mood_average!;
   return Math.abs(delta) < 0.25
-    ? "El ánimo medio de tus días registrados es parecido al del período anterior. Los días sin registros no se incluyen en esta comparación."
-    : `El ánimo medio de tus días registrados es ${delta > 0 ? "más alto" : "más bajo"} que en el período anterior. Es una descripción de tus registros, no una evaluación de tu bienestar.`;
+    ? "El ánimo medio es parecido al del período anterior."
+    : `El ánimo medio es ${delta > 0 ? "más alto" : "más bajo"} que en el período anterior.`;
 }

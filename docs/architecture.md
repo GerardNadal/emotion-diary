@@ -1,5 +1,7 @@
 # Arquitectura de la fase 1
 
+La arquitectura de IA y bienestar de la fase 6, incluyendo cuotas distribuidas, privacidad y retención, está documentada en [ai-wellbeing.md](ai-wellbeing.md).
+
 Implementación propia para una empresa, sobre la base existente Next.js 16.4, React 19, TypeScript, Tailwind 4 y shadcn/ui con Base UI. No depende de EmotionTracker ni incorpora organizaciones, pagos o multi-tenancy.
 
 ## Organización

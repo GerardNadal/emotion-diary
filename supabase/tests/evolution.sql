@@ -48,13 +48,13 @@ select pg_temp.assert_true(public.journal_statistics('2026-03-29','2026-03-31')-
 select pg_temp.assert_true(public.journal_statistics('2026-03-29','2026-03-31')->'triggers' @> '[{"reason":"sleep","count":1}]'::jsonb,'trigger frequency');
 select pg_temp.assert_true(public.journal_statistics('2026-03-29','2026-03-31')->>'without_trigger'='1','unattributed entries are explicit');
 select pg_temp.assert_true(public.journal_days('{"timezone":"Europe/Madrid","from":"2026-03-29","to":"2026-03-29"}')->0->'moods' @> '["very-low","very-good"]'::jsonb,'calendar represents mixed moods');
-select pg_temp.assert_true(public.journal_progress()->>'active_days'='1','backdated entries count today once');
+select pg_temp.assert_true((public.journal_progress()->>'active_days')::integer=(extract(isodow from (public.journal_progress()->>'today')::date)<=5)::integer,'backdated entries count today once on weekdays');
 select pg_temp.assert_true(public.journal_progress()->'days' @> jsonb_build_array((clock_timestamp() at time zone 'Europe/Madrid')::date),'activity uses actual action time');
 select public.journal_save('f4200000-0000-4000-8000-000000000001','{"mood":"good","emotion":"calm","intensity":2,"occurred_at":"2026-03-29T12:00:00Z"}',false);
 select pg_temp.assert_true(public.journal_statistics('2026-03-29','2026-03-31')->'distributions' @> '[{"kind":"emotion","value":"calm","count":2,"present":true}]'::jsonb,'edits reflected immediately');
 select public.journal_delete(array['f4200000-0000-4000-8000-000000000002'::uuid]);
 select pg_temp.assert_true(public.journal_statistics('2026-03-29','2026-03-31')->'current'->>'entries'='2','deletion updates metrics');
-select pg_temp.assert_true(public.journal_progress()->>'active_days'='1','deleting entry preserves action performed');
+select pg_temp.assert_true((public.journal_progress()->>'active_days')::integer=(extract(isodow from (public.journal_progress()->>'today')::date)<=5)::integer,'deleting entry preserves action performed');
 -- Repeated edits do not qualify. Removing today here is a test-only clock fixture.
 reset role;
 delete from journal_private.activity_days where user_id='f4100000-0000-4000-8000-000000000003';
@@ -66,7 +66,7 @@ select pg_temp.assert_true(public.journal_progress()->>'active_days'='0','mood e
 select public.journal_save('f4200000-0000-4000-8000-000000000001','{"mood":"good","emotion":"calm","intensity":2,"reflection":"   ","occurred_at":"2026-03-29T12:00:00Z"}',false);
 select pg_temp.assert_true(public.journal_progress()->>'active_days'='0','whitespace reflection not completed');
 select public.journal_save('f4200000-0000-4000-8000-000000000001','{"mood":"good","emotion":"calm","intensity":2,"reflection":"A personal reflection","occurred_at":"2026-03-29T12:00:00Z"}',false);
-select pg_temp.assert_true(public.journal_progress()->>'active_days'='1','first reflection completion qualifies today');
+select pg_temp.assert_true((public.journal_progress()->>'active_days')::integer=(extract(isodow from (public.journal_progress()->>'today')::date)<=5)::integer,'first reflection completion qualifies on weekdays');
 reset role;
 delete from journal_private.activity_days where user_id='f4100000-0000-4000-8000-000000000003';
 set local role authenticated;
@@ -84,19 +84,23 @@ union select date '2026-10-23'+n from generate_series(0,4) n) days
 where d<(clock_timestamp() at time zone 'Europe/Madrid')::date-40;
 insert into journal_private.activity_days(user_id,day,timezone,kind)
 select 'f4100000-0000-4000-8000-000000000003',(clock_timestamp() at time zone 'Europe/Madrid')::date-n,'Europe/Madrid','entry_created'
-from generate_series(1,30) n on conflict do nothing;
+from (select n from generate_series(1,70) n
+  where extract(isodow from (clock_timestamp() at time zone 'Europe/Madrid')::date-n)<=5 order by n limit 30) workdays
+on conflict do nothing;
 set local role authenticated;
 select pg_temp.assert_true(public.journal_progress()->>'current'='30','yesterday keeps current streak alive');
 select pg_temp.assert_true(public.journal_progress()->>'best'='30','historical best across month boundary');
 select public.journal_save('f4200000-0000-4000-8000-000000000005','{"mood":"neutral","emotion":"peace","intensity":1,"occurred_at":"2025-01-01T00:00:00Z"}',true);
-select pg_temp.assert_true(public.journal_progress()->>'current'='31','today extends sequence by one');
+select pg_temp.assert_true((public.journal_progress()->>'current')::integer=30+(extract(isodow from (clock_timestamp() at time zone 'Europe/Madrid')::date)<=5)::integer,'weekday extends sequence; weekend stays optional');
 select pg_temp.assert_true(jsonb_array_length(public.journal_progress()->'rewards')=4,'1,5,10,30 rewards granted once');
 select public.journal_save('f4200000-0000-4000-8000-000000000005','{"mood":"neutral","emotion":"peace","intensity":1,"occurred_at":"2025-01-01T00:00:00Z"}',true);
 select pg_temp.assert_true(jsonb_array_length(public.journal_progress()->'rewards')=4,'idempotent create does not duplicate rewards');
 reset role;
-delete from journal_private.activity_days where user_id='f4100000-0000-4000-8000-000000000003' and day=(clock_timestamp() at time zone 'Europe/Madrid')::date-1;
+delete from journal_private.activity_days where user_id='f4100000-0000-4000-8000-000000000003' and day=(
+  select max(day) from journal_private.activity_days where user_id='f4100000-0000-4000-8000-000000000003'
+    and day<(clock_timestamp() at time zone 'Europe/Madrid')::date and extract(isodow from day)<=5);
 set local role authenticated;
-select pg_temp.assert_true(public.journal_progress()->>'current'='1','interrupted streak restarts today');
+select pg_temp.assert_true((public.journal_progress()->>'current')::integer=(extract(isodow from (clock_timestamp() at time zone 'Europe/Madrid')::date)<=5)::integer,'missing weekday breaks the streak even if optional weekends have activity');
 select pg_temp.assert_true(public.journal_progress()->>'best'='29','longest historical island retained');
 select pg_temp.assert_true(jsonb_array_length(public.journal_progress()->'rewards')=4,'earned recognition persists after a pause');
 select pg_temp.assert_true(public.journal_progress('2026-01-01')->'days' @> '["2026-01-01"]'::jsonb,'year/month calendar navigation');
@@ -134,7 +138,9 @@ do $$ declare length integer; expected integer; begin
     delete from journal_private.rewards where user_id='f4100000-0000-4000-8000-000000000003';
     insert into journal_private.activity_days(user_id,day,timezone,kind)
     select 'f4100000-0000-4000-8000-000000000003',(clock_timestamp() at time zone 'Europe/Madrid')::date-n,'Europe/Madrid','entry_created'
-    from generate_series(1,length-1) n;
+    from (select n from generate_series(1,length*3) n
+      where extract(isodow from (clock_timestamp() at time zone 'Europe/Madrid')::date-n)<=5
+      order by n limit length-(extract(isodow from (clock_timestamp() at time zone 'Europe/Madrid')::date)<=5)::integer) workdays;
     set local role emotion_journal_executor;
     perform app_private.record_journal_activity('entry_created');
     reset role;

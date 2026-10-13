@@ -147,12 +147,6 @@ export function EmotionForm({
         <h2 id="saved-title">
           {entry ? "Entrada actualizada" : "Entrada guardada"}
         </h2>
-        <Alert>
-          <Check />
-          <AlertDescription>
-            Tu registro se ha guardado en tu diario privado.
-          </AlertDescription>
-        </Alert>
         <div className="form-actions">
           <Link
             href={`/journal/${saved.id}`}
@@ -188,7 +182,7 @@ export function EmotionForm({
               {selectedMood?.emoji}
             </span>
             <div>
-              <h2 id="review-title">Así has descrito este momento</h2>
+              <h2 id="review-title">Revisar entrada</h2>
               <p>
                 {selectedMood?.label} · {selected?.label} ·{" "}
                 {intensities[intensity - 1]}
@@ -303,7 +297,7 @@ export function EmotionForm({
             <details className="extra-details">
               <summary>
                 <div>
-                  <strong>Un poco más sobre este momento</strong>
+                  <strong>Detalles opcionales</strong>
                   <span>Reflexión, motivos, actividad y apoyo · opcional</span>
                 </div>
                 <ChevronDown aria-hidden="true" />
@@ -311,19 +305,15 @@ export function EmotionForm({
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="reflection">
-                    ¿Quieres contar un poco más?
+                    Reflexión
                   </FieldLabel>
                   <Textarea
                     id="reflection"
-                    placeholder="Escribe aquí lo que quieras…"
                     rows={3}
                     maxLength={2000}
                     value={reflection}
                     onChange={(e) => setReflection(e.target.value)}
                   />
-                  <FieldDescription>
-                    No necesitas encontrar las palabras perfectas.
-                  </FieldDescription>
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="category">
@@ -376,7 +366,6 @@ export function EmotionForm({
                     maxLength={250}
                     value={customReason}
                     onChange={(e) => setCustomReason(e.target.value)}
-                    placeholder="Puedes escribir otro motivo para esta categoría"
                   />
                 </Field>
                 <Field>
@@ -411,7 +400,7 @@ export function EmotionForm({
                     maxLength={1000}
                     value={support}
                     onChange={(e) => setSupport(e.target.value)}
-                    placeholder="Puedes contar qué te ayudó, sin identificar a otras personas."
+                    placeholder="Sin nombres ni datos personales"
                   />
                 </Field>
                 <Field>

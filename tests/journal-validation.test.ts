@@ -5,7 +5,7 @@ import {
   journalQuerySchema,
   deleteIdsSchema,
 } from "../src/modules/journal/validation";
-import { monthRange, weekRange, localDay } from "../src/modules/journal/dates";
+import { monthRange, weekRange, localDay, isWorkday, statisticsDayCount } from "../src/modules/journal/dates";
 const valid = {
   mood: "good",
   emotion: "joy",
@@ -78,4 +78,18 @@ test("calendar helpers preserve local dates, weeks across years and leap months"
     localDay(new Date("2026-03-28T23:30:00Z"), "Europe/Madrid"),
     "2026-03-29",
   );
+});
+
+test("empty weekends are optional in activity statistics; recorded weekends remain included", () => {
+  const days = Array.from({ length: 7 }, (_, index) => ({
+    day: `2026-10-${String(5 + index).padStart(2, "0")}`,
+    count: index < 5 ? 1 : 0,
+  }));
+  assert.equal(isWorkday("2026-10-09"), true);
+  assert.equal(isWorkday("2026-10-10"), false);
+  assert.equal(isWorkday("2026-10-11"), false);
+  assert.equal(statisticsDayCount(days), 5);
+  days[5].count = 1;
+  assert.equal(statisticsDayCount(days), 6);
+  assert.equal(statisticsDayCount([{ day: "2026-10-11", count: 0 }]), 0);
 });

@@ -7,5 +7,5 @@ export default async function EditEntryPage({ params }: { params: Promise<{ id: 
   const result = await getEntry(id);
   if (!result.ok) throw new Error(result.message);
   if (!result.data) notFound();
-  return <><PageHeading title="Editar este momento" description="Puedes volver sobre lo que sentiste y darle nuevas palabras." /><EmotionForm key={id} entry={result.data} /></>;
+  return <><PageHeading title="Editar entrada" /><EmotionForm key={id} entry={result.data} /></>;
 }

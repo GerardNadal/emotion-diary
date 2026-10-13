@@ -14,7 +14,6 @@ export default async function NewEntryPage({
     <>
       <PageHeading
         title="Dale espacio a lo que sientes"
-        description="Escribe, elige, reflexiona. Este es tu momento."
       />
       <EmotionForm key={initialMood} initialMood={initialMood} />
     </>

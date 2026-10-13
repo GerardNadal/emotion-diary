@@ -8,7 +8,6 @@ export default async function AggregatePage() {
     <>
       <PageHeading
         title="Bienestar agregado"
-        description="Una perspectiva compartida que respeta el espacio de cada persona."
       />
       <AggregateInsights company={company} teams={teams} />
     </>

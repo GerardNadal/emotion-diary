@@ -15,6 +15,7 @@ import {
 import { displayDate } from "./dates";
 import { deleteEntries } from "./actions";
 import type { JournalEntry } from "./types";
+import { RecommendationPanel } from "@/modules/ai/recommendation-panel";
 
 export function EntryDetails({ entry }: { entry: JournalEntry }) {
   const router = useRouter();
@@ -120,6 +121,7 @@ export function EntryDetails({ entry }: { entry: JournalEntry }) {
           </Button>
         </div>
       </section>
+      <RecommendationPanel key={entry.updated_at} entryId={entry.id} />
       {confirm ? (
         <Alert
           role="alertdialog"

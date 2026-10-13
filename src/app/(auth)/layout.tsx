@@ -17,10 +17,6 @@ export default function AuthLayout({
             <br />
             Un espacio para sentir.
           </h1>
-          <p>
-            Escucha cómo estás, encuentra tu ritmo y dale espacio a lo que
-            sientes.
-          </p>
           <div className="auth-emotions" aria-hidden="true">
             {moods.map((mood) => (
               <span key={mood.value} data-emotion={mood.color}>
@@ -29,9 +25,6 @@ export default function AuthLayout({
             ))}
           </div>
         </div>
-        <small className="auth-access-note">
-          Tu diario es privado. También frente a la administración.
-        </small>
       </section>
       <section className="auth-content">
         <div>

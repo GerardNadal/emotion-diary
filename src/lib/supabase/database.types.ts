@@ -114,6 +114,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ai_release: { Args: { p_token: string }; Returns: undefined }
+      ai_reserve: { Args: { p_entry_id: string }; Returns: Json }
       bootstrap_admin: {
         Args: { p_full_name: string; p_id: string }
         Returns: string
@@ -154,6 +156,7 @@ export type Database = {
         Args: { p_assigned: boolean; p_profile_id: string; p_team_id: string }
         Returns: undefined
       }
+      wellbeing_complete: { Args: { p_activity: string }; Returns: boolean }
     }
     Enums: {
       app_role: "company_admin" | "team_admin" | "employee"

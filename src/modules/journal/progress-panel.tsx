@@ -12,25 +12,21 @@ const milestones = [
     value: 1,
     title: "Un momento para ti",
     icon: Sprout,
-    message: "Has hecho espacio para escucharte.",
   },
   {
     value: 5,
     title: "Tu propio ritmo",
     icon: Flame,
-    message: "Cinco días encontrando un momento para ti.",
   },
   {
     value: 10,
     title: "Un hábito que florece",
     icon: Flower2,
-    message: "Diez días cultivando tu espacio personal.",
   },
   {
     value: 30,
     title: "Un espacio que te acompaña",
     icon: Heart,
-    message: "Treinta días de escucha. Tu recorrido es tuyo.",
   },
 ];
 export function ProgressPanel({ initial }: { initial: Progress }) {
@@ -68,18 +64,15 @@ export function ProgressPanel({ initial }: { initial: Progress }) {
       current = false;
     };
   }, [initial, month, revision]);
-  const latest = [...progress.rewards].sort(
-    (a, b) => b.milestone - a.milestone,
-  )[0];
   return (
     <div className="insight-grid">
       <div className="evolution-stack">
         <section className="surface">
-          <h2>Tu constancia, a tu manera</h2>
+          <h2>Rachas</h2>
           <div className="streak-metrics">
             <div>
               <strong>{progress.current}</strong>
-              <span>días de racha actual</span>
+              <span>{progress.current === 1 ? "día laborable" : "días laborables"} de racha</span>
             </div>
             <div>
               <strong>{progress.best}</strong>
@@ -87,14 +80,7 @@ export function ProgressPanel({ initial }: { initial: Progress }) {
             </div>
           </div>
           <p className="metric-note">
-            {progress.active_days} días de actividad desde que se activaron las
-            rachas. Crear una entrada o completar por primera vez su reflexión
-            cuenta; entrar o navegar no cuenta. Hoy puedes continuar una racha
-            que llegó hasta ayer.
-          </p>
-          <p className="metric-note">
-            Las pausas no restan nada a tu camino. Las recompensas que has
-            recibido se conservan.
+            {progress.active_days} {progress.active_days === 1 ? "día laborable" : "días laborables"} con actividad.
           </p>
         </section>
         {error ? (
@@ -123,15 +109,7 @@ export function ProgressPanel({ initial }: { initial: Progress }) {
         />
       </div>
       <section className="surface">
-        <h2>Pequeños pasos</h2>
-        <p className="metric-note">
-          Reconocimientos personales. Sin metas obligatorias ni comparaciones.
-        </p>
-        {latest ? (
-          <p className="milestone-message" role="status">
-            {milestones.find((m) => m.value === latest.milestone)?.message}
-          </p>
-        ) : null}
+        <h2>Logros</h2>
         <div className="reward-list">
           {milestones.map((m) => {
             const earned = progress.rewards.find(
@@ -145,12 +123,12 @@ export function ProgressPanel({ initial }: { initial: Progress }) {
                   <h3>{m.title}</h3>
                   <p>
                     {m.value === 1
-                      ? "Primer día de actividad"
-                      : `${m.value} días consecutivos`}{" "}
+                      ? "Primer día laborable con actividad"
+                      : `${m.value} días laborables consecutivos`}{" "}
                     ·{" "}
                     {earned
                       ? `Recibido el ${new Date(`${earned.earned_on}T12:00:00Z`).toLocaleDateString("es", { timeZone: "UTC" })}`
-                      : "Por descubrir, a tu ritmo"}
+                      : "Pendiente"}
                   </p>
                 </div>
               </div>

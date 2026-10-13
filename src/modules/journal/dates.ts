@@ -26,6 +26,13 @@ export function weekRange(today: string) {
   const from = shiftDay(today, -((day + 6) % 7));
   return { from, to: shiftDay(from, 6) };
 }
+export function isWorkday(day: string) {
+  const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
+  return weekday >= 1 && weekday <= 5;
+}
+export function statisticsDayCount(days: { day: string; count: number }[]) {
+  return days.filter((day) => isWorkday(day.day) || day.count > 0).length;
+}
 export function monthRange(month: string) {
   const [year, number] = month.split("-").map(Number);
   return {

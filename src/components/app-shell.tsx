@@ -12,7 +12,6 @@ import {
   UsersRound,
   Network,
   Heart,
-  LockKeyhole,
   LogOut,
   Menu,
   X,
@@ -150,14 +149,6 @@ export function AppShell({
       <div className="app-body">
         <header className="desktop-header">
           <span>{active?.label ?? "Mi diario"}</span>
-          <span className="privacy-label">
-            <LockKeyhole aria-hidden="true" />
-            {pathname.startsWith("/admin") ||
-            pathname === "/company" ||
-            pathname === "/team"
-              ? "Los diarios individuales son privados"
-              : "Tu espacio es privado"}
-          </span>
         </header>
         <main id="main" tabIndex={-1} className="page-content">
           {children}

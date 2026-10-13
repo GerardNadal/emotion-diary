@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { personalEvolution } from "./evolution-actions";
-import { browserTimezone, weekRange, shiftDay } from "./dates";
+import { browserTimezone, weekRange, shiftDay, isWorkday } from "./dates";
 import { emotions } from "./emotions";
 import type { Evolution } from "./evolution-types";
 
@@ -35,6 +35,7 @@ export function PersonalWeek() {
     };
   }, [revision]);
   const from = data ? weekRange(data.progress.today).from : "";
+  const activeWeekdays = data?.progress.week.filter(isWorkday).length ?? 0;
   const top =
     data?.statistics.distributions
       .filter((d) => d.kind === "emotion" && d.present)
@@ -50,10 +51,10 @@ export function PersonalWeek() {
       aria-busy={!data && !error}
     >
       <div className="section-heading">
-        <h2 id="week-title">Tu semana, a tu ritmo</h2>
+        <h2 id="week-title">Tu semana</h2>
         <span className="streak-empty">
           <strong>{data?.progress.current ?? "—"}</strong>
-          <span>días de racha personal</span>
+          <span>{data?.progress.current === 1 ? "día laborable" : "días laborables"} de racha</span>
         </span>
       </div>
       {error ? (
@@ -68,7 +69,7 @@ export function PersonalWeek() {
       ) : data ? (
         <>
           <div className="week-days">
-            {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map(
+            {["Lun", "Mar", "Mié", "Jue", "Vie"].map(
               (label, i) => {
                 const day = shiftDay(from, i);
                 const active = data.progress.week.includes(day);
@@ -92,15 +93,14 @@ export function PersonalWeek() {
             )}
           </div>
           <p className="empty-inline">
-            {data.progress.week.length} días de actividad esta semana. Cada día
-            cuenta una vez; las pausas también tienen su lugar.
+            {activeWeekdays} {activeWeekdays === 1 ? "día laborable" : "días laborables"} con actividad esta semana.
           </p>
           <p className="metric-note">
             Últimos 7 días: {data.statistics.current.entries} entradas en{" "}
             {data.statistics.current.recorded_days} días.{" "}
             {leaders
               ? "Emoción más frecuente: " + leaders + "."
-              : "Tu recorrido empieza cuando lo necesites."}
+              : ""}
           </p>
         </>
       ) : (

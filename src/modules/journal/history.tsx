@@ -244,7 +244,6 @@ export function JournalHistory({
     <>
       <PageHeading
         title="Mi diario"
-        description="Un lugar para escuchar cómo te sientes."
         action={
           <Link href="/journal/new" className={buttonVariants()}>
             <Plus data-icon="inline-start" />
@@ -477,7 +476,7 @@ export function JournalHistory({
             <EmptyState
               icon={BookOpen}
               title="Tu historia empieza aquí"
-              description="No hay entradas para este período y estos filtros. Solo tú puedes consultar tu diario."
+              description="No hay entradas para este período y estos filtros."
             >
               <Link
                 href="/journal/new"

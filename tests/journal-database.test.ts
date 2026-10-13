@@ -4,7 +4,7 @@ import { test } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 import { reasonGroups } from "../src/modules/journal/emotions";
 
-test("phase-3/4/5 PostgreSQL migrations, private and collective aggregates, activity and authorization (Auth claims emulated)", async () => {
+test("phase-3/4/5/6 PostgreSQL migrations, private/collective aggregates, AI limits, activity and authorization (Auth claims emulated)", async () => {
   const db = new PGlite();
   try {
     await db.exec(`create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
@@ -44,7 +44,9 @@ test("phase-3/4/5 PostgreSQL migrations, private and collective aggregates, acti
       ),
     );
     await db.exec(await readFile(new URL("../supabase/tests/evolution.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL("../supabase/tests/workweek.sql", import.meta.url), "utf8"));
     await db.exec(await readFile(new URL("../supabase/tests/reporting.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL("../supabase/tests/ai.sql", import.meta.url), "utf8"));
   } finally {
     await db.close();
   }

@@ -1,5 +1,7 @@
 # Fase 5: publicaciones colectivas
 
+En administración, «Resumen» muestra la gestión de empleados y equipos y una tarjeta del último mes cerrado con ánimo favorable, participación y tendencia. Para responsables, indica el equipo seleccionado por defecto; para empresa, usa el conjunto publicable. «Ver análisis completo» abre «Bienestar agregado», donde se mantienen filtros por equipo y período, gráficos, comparativas y metodología. Ambas vistas reutilizan los mismos datos publicados y reglas de supresión.
+
 ## Contrato y acceso
 
 `public.collective_statistics(p_team_id uuid, p_period date, p_grain text)` devuelve un único JSON agregado. `p_period` es el primer día de un mes cerrado o trimestre natural cerrado en Europe/Madrid; ventana de selección: 24 meses. No hay filtros por persona, emoción, motivo, fecha libre, día ni hora. Un administrador de equipo debe indicar exactamente uno de sus equipos asignados. Solo el administrador de empresa puede usar `null` para el resumen. La identidad, perfil activo, rol y asignación se comprueban en PostgreSQL en cada llamada; el JWT no decide el rol.
@@ -24,6 +26,8 @@ Se distinguen internamente participantes, días activos y entradas; no se public
 `reporting.team_state` guarda el inicio y generación de la composición estable, desde la aplicación de esta migración. Un alta, baja, traslado, activación/desactivación o cambio de rol de un empleado inicia una nueva generación para ambos equipos afectados y retira sus publicaciones anteriores. Cambiar un nombre o email no altera la cohorte. La nueva cohorte solo permite meses que comiencen después del cambio y de la línea base global. No se intenta reconstruir la composición anterior sin evidencia, ni se reasignan entradas antiguas al nuevo equipo.
 
 Consecuencia deliberada: al aplicar la fase el 13 de octubre de 2026, el primer mes potencialmente publicable es noviembre, una vez cerrado el 1 de diciembre y siempre que la composición permanezca estable y cumpla los controles. El primer trimestre potencial es enero–marzo de 2027. Los históricos previos muestran datos insuficientes. No se debe adelantar la línea base en un entorno con datos reales. Las pruebas usan procedencia ficticia explícita dentro de una transacción que se revierte.
+
+Esta limitación se aplica al historial real. El historial ficticio certificado del generador de demo dispone de la vía explícita descrita a continuación, sin modificar la línea base global ni la estabilidad de los equipos reales.
 
 ## Política de privacidad verificable
 
@@ -59,3 +63,21 @@ Referencias técnicas consultadas: [funciones y permisos](https://supabase.com/d
 Ambas migraciones están aplicadas al proyecto vinculado. Pasan las 39 pruebas automatizadas, lint, tipos y build; también las suites SQL alojadas de diario, evolución y reporting, y Auth/PostgREST de reporting/evolución. Los fixtures se eliminaron o revirtieron. Advisors no presenta avisos de rendimiento ni avisos nuevos de seguridad; permanece el aviso de protección de contraseñas filtradas de Auth desactivada, previo a esta fase.
 
 QA usa Playwright/Edge porque el plugin Browser no está disponible. Sitio real: http://127.0.0.1:3000; viewports 1440×1000 y 390×844. Comprueba identidad y contenido, ausencia de overlay/errores de aplicación, SSR de empresa/equipo, opciones autorizadas, meses/trimestres, detalles, fallo de red y reintento, redirección de empleados y ausencia de desbordamiento. El único error de consola esperado corresponde al fallo de red provocado. Los gráficos poblados se verificaron con los fixtures SQL ficticios en un montaje externo claramente identificado como QA, sin falsear la procedencia de producción. No se presenta esa prueba como un historial real ya publicable. Capturas y scripts permanecen fuera del repositorio.
+
+## Corrección: historial de demo verificable
+
+La migración `20261013074329_reporting_demo_provenance.sql` añade certificados privados para los fixtures deterministas de `scripts/demo-data.mjs`. El error observado en Demo · Desarrollo, septiembre de 2026, tenía 9 participantes y 248 entradas; se suprimía por ser anterior al inicio de la trazabilidad, no por el umbral de participación.
+
+`scripts/demo-reporting.mjs` verifica en PostgreSQL la plantilla completa contra identidades Auth, equipos, roles y estados del generador. Compara también los recuentos y huellas SHA-256 de **todas** las entradas de cada empleado, incluidos UUID de entrada, todos los campos y el instante con microsegundos. Las huellas se ordenan por UUID antes de calcular el resumen del diario. Detecta entradas ausentes, adicionales, editadas o atribuidas a otra persona, así como miembros ajenos al fixture. No devuelve diarios ni sobrescribe contenidos. El manifiesto contiene únicamente identidades ficticias esperadas y huellas del generador; permanece acotado incluso con 365 días. Solo el operador SQL puede registrar certificados; `anon`, `authenticated` y `service_role` carecen de permisos de escritura.
+
+Un certificado fija el intervalo conocido del fixture y la generación de la composición. Permite publicar ese historial anterior a la línea base real, con `source: demo`. Las distribuciones y participación sintéticas pueden mostrar categorías pequeñas o unánimes porque se ha comprobado que proceden íntegramente del generador ficticio; se mantiene el umbral del conjunto, la autorización de equipo y los períodos cerrados. Los datos reales conservan todos los controles de supresión originales. La interfaz muestra siempre «Datos ficticios de demostración» en estas publicaciones. Empresa y trimestres propagan la procedencia; un resumen mixto advierte que incluye datos ficticios y no debe interpretarse como el clima real de toda la empresa.
+
+Cualquier escritura en el diario elimina el certificado del equipo, aunque afecte a otro mes. Los cambios de composición también lo eliminan. Hasta una nueva validación exacta, el historial demo vuelve a quedar bloqueado por la política real. Las publicaciones del mes modificado permanecen retiradas, como antes; una nueva certificación no borra esas retiradas ni ofrece una segunda versión numérica. Las publicaciones de otros meses que no cambiaron pueden volver a utilizarse tras comprobar otra vez el fixture completo.
+
+El seed habitual valida la procedencia al terminar. Para habilitar un seed ya cargado, sin reescribir diarios:
+
+```powershell
+node --env-file-if-exists=.env.local scripts/demo-reporting.mjs --allow-remote
+```
+
+Se verificó el caso original con Auth/PostgREST reales en http://localhost:3000: septiembre de 2026 y tercer trimestre de Demo · Desarrollo muestran gráficos, participación y etiqueta de procedencia ficticia. La prueba de escritorio (1440×1000) y móvil (390×844) no presenta errores de consola ni desbordamiento. La suite PostgreSQL comprueba además que las aplicaciones no pueden certificar equipos, que una entrada distinta bloquea la certificación y que las mutaciones históricas no permiten una segunda publicación. La política y los diarios reales no se alteraron.

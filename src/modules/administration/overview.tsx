@@ -19,12 +19,7 @@ export function AdministrationOverview({
   return (
     <>
       <PageHeading
-        title={company ? "Una mirada a tu empresa" : "Un equipo al que cuidar"}
-        description={
-          company
-            ? "Personas, equipos y bienestar. Todo en su lugar."
-            : "Gestiona tus equipos desde la confianza y el respeto."
-        }
+        title={company ? "Mi empresa" : "Mis equipos"}
         action={
           <Link href="/admin/users/new" className={buttonVariants()}>
             <Plus data-icon="inline-start" />
@@ -67,7 +62,7 @@ export function AdministrationOverview({
           <ArrowRight data-icon="inline-end" />
         </Link>
       </div>
-      <AggregateInsights company={company} teams={teams} />
+      <AggregateInsights company={company} teams={teams} variant="summary" />
       <section className="surface">
         <div className="section-heading">
           <h2>{company ? "Equipos de la empresa" : "Tus equipos"}</h2>
@@ -92,7 +87,7 @@ export function AdministrationOverview({
             icon={UsersRound}
             title={
               company
-                ? "El primer equipo empieza aquí"
+                ? "Sin equipos"
                 : "Todavía no tienes equipos asignados"
             }
             description={

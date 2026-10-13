@@ -6,6 +6,7 @@ const withheld = z.object({ status: z.literal("insufficient_data") }).strict();
 const dimension = z.union([withheld, z.object({ status: z.literal("published"), values: z.array(z.object({ value: z.string(), percent }).strict()) }).strict()]);
 export const collectiveData = z.union([withheld, z.object({
   status: z.literal("published"),
+  source: z.enum(["live", "demo", "mixed"]).optional(),
   dimensions: z.object({ mood: dimension, emotion: dimension, intensity: dimension, factor: dimension, reason: dimension }).strict(),
   participation: z.union([withheld, z.object({ status: z.literal("published"), percent }).strict()]),
 }).strict()]);
@@ -44,10 +45,18 @@ export function positiveShare(data: CollectiveData) {
   const values = publishedValues(data, "mood");
   return values ? Math.min(100, values.filter((v) => ["good", "very-good"].includes(v.value)).reduce((sum, v) => sum + v.percent, 0)) : null;
 }
+const collectiveTrendThreshold = 20;
+export function collectiveTrendSummary(current: CollectiveData, previous: CollectiveData) {
+  const a = positiveShare(current);
+  const b = positiveShare(previous);
+  if (a === null || b === null) return "Sin comparación";
+  const delta = a - b;
+  return Math.abs(delta) < collectiveTrendThreshold ? "Se mantiene" : delta > 0 ? "Al alza" : "A la baja";
+}
 export function collectiveTrend(current: CollectiveData, previous: CollectiveData) {
   const a = positiveShare(current); const b = positiveShare(previous);
   if (a === null || b === null) return "La comparación necesita dos períodos publicables. Los huecos no equivalen a un ánimo neutral.";
   const delta = a - b;
-  if (Math.abs(delta) < 20) return "La proporción aproximada de ánimo favorable se mantiene sin una variación amplia. No es una evaluación de personas.";
+  if (Math.abs(delta) < collectiveTrendThreshold) return "La proporción aproximada de ánimo favorable se mantiene sin una variación amplia. No es una evaluación de personas.";
   return `${delta > 0 ? "Aumenta" : "Disminuye"} la proporción aproximada de ánimo favorable respecto al período anterior. Es una tendencia colectiva descriptiva, no una causa ni un diagnóstico.`;
 }

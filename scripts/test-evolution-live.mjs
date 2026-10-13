@@ -50,9 +50,11 @@ try {
     assert.equal(stats.current.intensity_average, 3.5);
     assert.equal(stats.days[1].mood_average, null);
     const progress = await rpc(owner.client, "journal_progress");
-    assert.equal(progress.current, 1);
-    assert.equal(progress.active_days, 1);
-    assert.equal(progress.rewards.length, 1);
+    const weekday = new Date(`${progress.today}T12:00:00Z`).getUTCDay();
+    const activeDay = weekday >= 1 && weekday <= 5 ? 1 : 0;
+    assert.equal(progress.current, activeDay);
+    assert.equal(progress.active_days, activeDay);
+    assert.equal(progress.rewards.length, activeDay);
     assert.deepEqual(progress.days, [progress.today]);
     await Promise.all(
       Array.from({ length: 4 }, () =>
@@ -63,10 +65,10 @@ try {
         }),
       ),
     );
-    assert.equal((await rpc(owner.client, "journal_progress")).active_days, 1);
+    assert.equal((await rpc(owner.client, "journal_progress")).active_days, activeDay);
     assert.equal(
       (await rpc(owner.client, "journal_progress")).rewards.length,
-      1,
+      activeDay,
     );
     for (const account of [company, manager, other]) {
       assert.equal(
@@ -132,7 +134,7 @@ try {
       p_entry: { ...base, reflection: "Completed reflection" },
       p_create: false,
     });
-    assert.equal((await rpc(owner.client, "journal_progress")).active_days, 1);
+    assert.equal((await rpc(owner.client, "journal_progress")).active_days, activeDay);
     const calendar = await rpc(owner.client, "journal_days", {
       p_query: {
         timezone: "Europe/Madrid",
@@ -147,7 +149,7 @@ try {
       (await rpc(owner.client, "journal_statistics", range)).current.entries,
       0,
     );
-    assert.equal((await rpc(owner.client, "journal_progress")).active_days, 1);
+    assert.equal((await rpc(owner.client, "journal_progress")).active_days, activeDay);
     const anon = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,

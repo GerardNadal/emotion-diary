@@ -3,6 +3,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { z } from "zod";
 import { adminClient, requireResult, strongPassword, createAccount, compensateAccount } from "./admin-env.mjs";
 import { demoTeams, demoManagers, demoProfiles, demoEntries, demoEndDate } from "./demo-data.mjs";
+import { attestDemoReporting } from "./demo-reporting.mjs";
 
 async function authWithRetry(operation) {
   let result = await operation();
@@ -114,7 +115,7 @@ try {
     }
     console.log(`Demo preparada y verificada: ${added} entradas nuevas. Las cuentas y entradas existentes conservan sus contraseñas y contenido.`);
     console.log("Acceso: empresa@example.test, responsable@example.test, responsable.operaciones@example.test, responsable.marketing@example.test y responsable.personas@example.test. Nuevas cuentas: DEMO_PASSWORD.");
-    console.log("Administración muestra directorio, equipos y cuentas activas. Las estadísticas emocionales agregadas siguen pendientes de implementación; los diarios permanecen privados.");
+    await attestDemoReporting({ days, endDate });
   }
 } catch (error) {
   console.error(error instanceof z.ZodError ? "Revisa DEMO_PASSWORD (12–128 caracteres), DEMO_DAYS (7–365) y la clave pública de Supabase." : error.message);

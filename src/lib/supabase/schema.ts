@@ -9,6 +9,9 @@ type Functions = PublicSchema["Functions"];
 export type Database = Omit<GeneratedDatabase, "public"> & {
   public: Omit<PublicSchema, "Functions"> & {
     Functions: Omit<Functions, "save_team" | "save_profile" | "collective_statistics"> & {
+      ai_reserve: { Args: { p_entry_id: string }; Returns: import("./database.types").Json };
+      ai_release: { Args: { p_token: string }; Returns: undefined };
+      wellbeing_complete: { Args: { p_activity: string }; Returns: boolean };
       collective_statistics: {
         Args: { p_team_id: string | null; p_period: string; p_grain?: string };
         Returns: import("./database.types").Json;

@@ -20,7 +20,6 @@ export function PersonalHome({ name }: { name: string }) {
           Registrar cómo me siento
           <ArrowRight data-icon="inline-end" />
         </Link>
-        <small>Tu diario es privado. Solo tú puedes consultar tus entradas.</small>
       </section>
       <PersonalWeek />
       <section className="pause-band">
@@ -29,7 +28,6 @@ export function PersonalHome({ name }: { name: string }) {
         </span>
         <div>
           <h2>Una pequeña pausa</h2>
-          <p>No tienes que resolverlo todo hoy.</p>
         </div>
         <Link href="/recommendations">
           Ver recursos
