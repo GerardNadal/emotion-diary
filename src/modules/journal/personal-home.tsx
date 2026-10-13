@@ -3,6 +3,7 @@ import { ArrowRight, Leaf } from "lucide-react";
 import { PageHeading } from "@/components/page-heading";
 import { buttonVariants } from "@/components/ui/button";
 import { MoodShortcuts } from "./mood-shortcuts";
+import { PersonalWeek } from "./personal-week";
 
 export function PersonalHome({ name }: { name: string }) {
   return (
@@ -16,29 +17,12 @@ export function PersonalHome({ name }: { name: string }) {
         <p>Todas las emociones tienen su lugar.</p>
         <MoodShortcuts />
         <Link className={buttonVariants()} href="/journal/new">
-          Explorar mi diario
+          Registrar cómo me siento
           <ArrowRight data-icon="inline-end" />
         </Link>
-        <small>Vista previa · Las entradas todavía no se guardan</small>
+        <small>Tu diario es privado. Solo tú puedes consultar tus entradas.</small>
       </section>
-      <section className="week-section" aria-labelledby="week-title">
-        <div className="section-heading">
-          <h2 id="week-title">Tu semana, a tu ritmo</h2>
-          <span className="streak-empty">
-            <strong>—</strong>
-            <span>Tu racha aparecerá aquí</span>
-          </span>
-        </div>
-        <div className="week-days">
-          {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((day) => (
-            <div key={day}>
-              <span>{day}</span>
-              <span className="day-circle" aria-hidden="true" />
-            </div>
-          ))}
-        </div>
-        <p className="empty-inline">Todavía no hay registros.</p>
-      </section>
+      <PersonalWeek />
       <section className="pause-band">
         <span className="round-icon">
           <Leaf aria-hidden="true" />

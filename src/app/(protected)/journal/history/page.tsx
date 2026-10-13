@@ -1,7 +1,9 @@
 import { JournalHistory } from "@/modules/journal/history";
 import { requireProfile } from "@/modules/auth/session";
-import { todayInMadrid } from "@/modules/shared/today";
-export default async function HistoryPage() {
+export default async function HistoryPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
   await requireProfile();
-  return <JournalHistory today={todayInMadrid()} />;
+  const params = await searchParams;
+  const from = typeof params.from === "string" ? params.from : "";
+  const to = typeof params.to === "string" ? params.to : "";
+  return <JournalHistory key={`${from}:${to}`} initialFrom={from} initialTo={to} />;
 }

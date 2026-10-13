@@ -1,4 +1,4 @@
-# Interfaces · Fase 2
+# Interfaces · Fases 3 y 4
 
 Dentro usa una identidad ligera: fondos claros, lavanda para el registro, menta y melocotón para acentos, tipografía Geist y navegación con iconos Lucide. La pantalla de inicio se limita a estado de ánimo, semana y una pausa. Los campos menos frecuentes están plegados. No se usan fotos, registro público ni funciones sociales.
 
@@ -7,11 +7,12 @@ Dentro usa una identidad ligera: fondos claros, lavanda para el registro, menta 
 | Ruta | Pantalla | Comportamiento actual |
 | --- | --- | --- |
 | `/login`, `/recover`, `/update-password` | Acceso y contraseña | Acciones de autenticación existentes; sin registro público |
-| `/employee` | Inicio del empleado | Cinco estados de ánimo; la primera pulsación abre el formulario con el estado preseleccionado; semana sin datos y racha pendiente |
+| `/employee` | Inicio del empleado | Cinco estados de ánimo; la primera pulsación abre el formulario sin guardar; resumen emocional de siete días, racha actual, actividad semanal y acceso a evolución reales |
 | `/journal` | Espacio personal de cualquier rol | El mismo inicio privado; disponible también para administradores |
-| `/journal/new` | Registro de vista previa | Estado de ánimo independiente de la emoción específica (tristeza, alegría, ansiedad, calma o enfado), intensidad de esa emoción, motivos laborales y personales, reflexión y detalles opcionales; revisión sin guardar |
-| `/journal/history` | Historial | Vistas de tarjetas, tabla y calendario; sin entradas ficticias |
-| `/insights` | Evolución personal | Calendario navegable y espacios para gráficos y recompensas pendientes |
+| `/journal/new` | Registro privado | Cinco estados de ánimo, nueve emociones e intensidad; detalles opcionales plegados; revisión y guardado con validación, carga y reintentos |
+| `/journal/history` | Historial | Tarjetas, tabla y calendario reales; filtros en servidor por período/emoción/intensidad/categoría, orden y páginas de 12; selección y borrado con confirmación |
+| `/journal/[id]`, `/journal/[id]/edit` | Detalles y edición | Todos los campos del registro propio, fechas locales, modificación y borrado individual; entradas ajenas no disponibles |
+| `/insights` | Evolución personal | Estadísticas de ánimo/emoción/intensidad, motivos, comparación, ventanas 7/30/90 días y personalizadas; calendario emocional, actividad, rachas y recompensas; zona horaria persistente |
 | `/recommendations` | Recursos | Pausa general, recomendaciones de IA y música pendientes |
 | `/profile` | Perfil básico | Nombre, correo, rol y equipo reales; acceso a cambio de contraseña; sin fotografía |
 | `/company`, `/team` | Resumen administrativo | Cantidades exactas de empleados y cuentas activas, equipos autorizados y accesos a gestión |
@@ -24,17 +25,17 @@ La navegación lateral se convierte en menú y accesos inferiores en móvil. Inc
 
 ## Separación de responsabilidades
 
-- Las rutas conservan `requireProfile` y las comprobaciones de rol del servidor. Las mutaciones administrativas, autenticación, RPC, migraciones y políticas no se han modificado.
+- Las rutas conservan `requireProfile` y las comprobaciones de rol. El diario añade su API privada y políticas propias; mantiene las funciones y permisos de administración.
 - Los resúmenes administrativos usan el cliente SSR y RLS existente. Los conteos exactos no se calculan a partir de una página del directorio. Solo cuentan datos administrativos, nunca emociones.
-- Los componentes de diario no consultan tablas ni envían entradas a Server Actions. El formulario usa estado temporal de React y dice explícitamente que no guarda datos. Salir de la pantalla descarta su contenido.
+- Los componentes del diario llaman a Server Actions con el cliente SSR del actor. Los campos se mantienen cuando falla el guardado; se muestra confirmación solo tras una respuesta de la base de datos. Los reintentos de creación reutilizan el UUID y no duplican entradas. Salir del formulario sin guardar descarta su estado temporal; no se persisten borradores sensibles en el navegador.
 - La administración no importa componentes ni consultas del diario. Su módulo de estadísticas recibe solo equipos autorizados y mantiene estados vacíos.
 - No hay fixtures ni rutas de prueba incorporados al producto. Las cuentas de demostración siguen siendo optativas y explícitas mediante el script existente `demo:seed`.
 
 ## Próximas integraciones
 
-1. Persistencia del diario con permisos exclusivos del propietario, sin excepciones para administradores.
-2. Historial real, calendario emocional, gráficos personales y rachas a partir de las entradas privadas.
-3. Recompensas calculadas, recomendaciones de IA y música con sus estados de carga y error.
-4. API de agregados que valide alcance, umbral de participantes y protección frente a reconstrucción de datos. La selección de periodos actual solo prepara la interfaz; no realiza cálculos.
+1. Recomendaciones de IA, recursos y música con sus estados de carga y error; solo acciones de bienestar completadas pueden incorporarse a la actividad.
+2. API de agregados que valide alcance, umbral de participantes y protección frente a reconstrucción de datos. La selección de periodos actual solo prepara la interfaz; no realiza cálculos.
 
-Para la navegación con sesiones reales, configurar Supabase y usar las cuentas descritas en el README. La revisión visual sin ese servicio se realiza con componentes reales y fixtures temporales aislados; no equivale a probar autenticación o mutaciones contra un proyecto Supabase en funcionamiento.
+La fase 3 se verificó contra Supabase alojado con Auth/PostgREST y cookies SSR reales. Playwright/Edge comprobó los flujos y el diseño en escritorio y móvil con cuentas temporales aisladas que se eliminaron. El README describe las pruebas ejecutables y los límites de lo verificado.
+
+La fase 4 mantiene el calendario existente y añade todos los ánimos distintos de cada día con un conteo de entradas. El calendario de actividad reutiliza su cuadrícula y navegación, con marcas de días de acciones realizadas. Las estadísticas diferencian ánimo (escala ordinal), emoción (nueve categorías) e intensidad (fuerza 1–5), ofrecen datos tabulares accesibles y explican los días sin registros. No se muestran cifras inventadas ni tendencias con pocos días. Las reglas y pruebas se documentan en [personal-evolution.md](personal-evolution.md).

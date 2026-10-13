@@ -858,10 +858,91 @@ input[type="range"]::-moz-range-thumb {
   width: 14px;
   height: 14px;
 }
+.journal-filter-grid[data-slot="field-group"] {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.journal-filters > .form-actions { margin-top: 20px; }
+.journal-filters [data-slot="native-select-wrapper"],
+.extra-details [data-slot="native-select-wrapper"] { width: 100%; }
+.journal-selection { margin-bottom: 16px; }
+.journal-selection label { font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.journal-entry-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.journal-excerpt { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.calendar-day { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px; text-align: left; }
+.calendar-day.has-entries { background: var(--secondary); color: var(--primary); }
+.calendar-day.selected { outline: 2px solid var(--primary); outline-offset: 2px; }
+.calendar-day:disabled { opacity: .6; }
+.calendar-day:focus-visible { outline: 2px solid var(--ring); }
+.journal-latest { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-block: 16px; font-size: 13px; }
+.journal-latest time { color: var(--muted-foreground); }
+.day-circle { display: inline-flex; align-items: center; justify-content: center; }
+@media (max-width: 767px) {
+  .journal-filter-grid[data-slot="field-group"] { grid-template-columns: 1fr; }
+  .calendar-day.has-entries > span:nth-child(2) { font-size: 16px; }
+  .calendar-day small { font-size: 9px; }
+}
 .insight-grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
   gap: 24px;
+}
+.evolution-stack { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.evolution-filters { display: flex; gap: 16px; align-items: end; flex-wrap: wrap; }
+.evolution-filters [data-slot="field"] { flex: 1 1 170px; }
+.evolution-filters [data-slot="native-select-wrapper"] { width: 100%; }
+.evolution-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+.evolution-metrics .surface > strong { font-size: 32px; color: var(--primary); font-weight: 500; }
+.evolution-metrics .surface > h2 { font-size: 14px; }
+.metric-note { font-size: 13px; color: var(--muted-foreground); line-height: 1.65; margin-block: 10px; }
+.frequent-emotion { font-size: 20px; color: var(--primary); margin-block: 10px; overflow-wrap: anywhere; }
+.trend-note { background: var(--secondary); }
+.trend-note p { font-size: 14px; line-height: 1.7; margin-top: 10px; }
+.evolution-chart svg { width: 100%; height: auto; margin-top: 18px; overflow: visible; }
+.evolution-chart text { fill: var(--muted-foreground); font-size: 11px; }
+.chart-gridline { stroke: var(--border); stroke-width: 1; }
+.chart-mood { stroke: var(--primary); fill: var(--primary); stroke-width: 2; }
+polyline.chart-mood, polyline.chart-intensity { fill: none; }
+.chart-intensity { stroke: #518775; fill: #518775; stroke-width: 2; }
+.distribution-list { display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
+.distribution-row > div:first-child { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+.distribution-row small { font-size: 11px; color: var(--muted-foreground); }
+.distribution-track { height: 8px; background: var(--muted); border-radius: 8px; overflow: hidden; margin-block: 6px; }
+.distribution-track > span { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
+.mood-distribution { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 14px; margin-top: 20px; }
+.mood-distribution > div { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.mood-distribution strong { font-size: 22px; font-weight: 500; }
+.mood-distribution small { color: var(--muted-foreground); }
+.trigger-list { display: flex; flex-direction: column; gap: 0; margin-top: 12px; }
+.trigger-list li { display: flex; justify-content: space-between; gap: 16px; padding-block: 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.trigger-list li div { display: flex; flex-direction: column; gap: 4px; overflow-wrap: anywhere; min-width: 0; }
+.trigger-list li span { flex-shrink: 0; color: var(--muted-foreground); }
+.trigger-list small { color: var(--muted-foreground); }
+.evolution-table { overflow-x: auto; margin-top: 18px; }
+.evolution-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.evolution-table th, .evolution-table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--border); }
+.evolution-table th { font-weight: 500; }
+.evolution-table caption { text-align: left; padding: 10px; }
+.metric-method .evolution-table { max-height: 360px; }
+.evolution-section-heading { font-size: 20px; font-weight: 600; }
+.streak-metrics { display: flex; gap: 32px; margin-block: 20px; }
+.streak-metrics > div { display: flex; flex-direction: column; gap: 4px; }
+.streak-metrics strong { font-size: 32px; color: var(--primary); font-weight: 500; }
+.streak-metrics span { font-size: 12px; color: var(--muted-foreground); }
+.milestone-message { padding: 14px; background: var(--secondary); border-radius: 12px; margin-top: 20px; font-size: 14px; line-height: 1.6; }
+.reward-row[data-earned="false"] > svg { color: var(--muted-foreground); }
+.calendar-moods { display: flex; flex-wrap: wrap; gap: 2px; flex-basis: 100%; }
+.calendar-moods > span { font-size: 14px; }
+.day-circle[data-active="true"] { background: var(--secondary); color: var(--primary); }
+@media (max-width: 767px) {
+  .evolution-metrics { grid-template-columns: 1fr; }
+  .evolution-metrics .surface { padding: 20px; }
+  .mood-distribution { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .evolution-filters { flex-direction: column; align-items: stretch; }
+  .evolution-filters [data-slot="field"] { flex-basis: auto; }
+  .evolution-chart svg { min-height: 140px; }
+  .calendar-moods > span { font-size: 11px; }
 }
 .insight-grid .surface {
   min-width: 0;

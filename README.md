@@ -1,10 +1,12 @@
 # Dentro · Diario emocional
 
-Aplicación interna para una única empresa. Implementa autenticación, directorio, equipos, responsables, permisos e interfaces responsive para los tres roles. La fase 2 añade el espacio personal, un registro emocional de vista previa, historial, calendario, evolución, recursos y perfil. El almacenamiento del diario, las estadísticas, las rachas, las recompensas y la IA se conectarán en próximas fases. No se muestran estadísticas emocionales ficticias.
+Aplicación interna para una única empresa. Implementa autenticación, directorio, equipos, responsables y permisos para los tres roles. La fase 3 conecta el diario privado a Supabase: registro, revisión, edición, borrado individual/múltiple, historial paginado, filtros y calendario. La fase 4 añade estadísticas personales agregadas en PostgreSQL, gráficos de ánimo/intensidad, distribución de nueve emociones y motivos, comparación de períodos, calendario con varios ánimos, rachas persistentes y recompensas privadas. El inicio muestra un resumen emocional reciente, racha y actividad semanal.
 
 Consulta las pantallas y los puntos de integración en [docs/interfaces.md](docs/interfaces.md).
 
 Consulta las decisiones y el modelo de autorización en [docs/architecture.md](docs/architecture.md).
+
+Consulta las fórmulas, reglas de rachas, zona horaria, consultas y pruebas de la fase 4 en [docs/personal-evolution.md](docs/personal-evolution.md).
 
 ## Requisitos
 
@@ -72,11 +74,30 @@ npm run demo:seed
 | Cuenta ficticia | Rol | Alcance |
 | --- | --- | --- |
 | `empresa@example.test` | Empresa | Toda la demo |
-| `responsable@example.test` | Equipo | Demo · Desarrollo |
+| `responsable@example.test` | Equipo | Demo · Desarrollo y Demo · Producto |
+| `responsable.operaciones@example.test` | Equipo | Demo · Operaciones y Demo · Soporte |
+| `responsable.marketing@example.test` | Equipo | Demo · Marketing |
+| `responsable.personas@example.test` | Equipo | Demo · Personas |
 | `desarrollo@example.test` | Empleado | Demo · Desarrollo |
 | `operaciones@example.test` | Empleado | Demo · Operaciones |
 
-Usan la contraseña que proporcionaste en `DEMO_PASSWORD`. Los dominios son ficticios; para recuperación por correo usa una cuenta real o Mailpit local. Repetir el script conserva cuentas y contraseñas existentes y se detiene si una cuenta coincide por correo pero sus datos ya no coinciden con la demo. Si falla a mitad, puede haber datos parciales: se puede reejecutar tras resolver el error. No elimina datos ni siembra entradas emocionales.
+La demo incluye **6 equipos, 60 empleados (54 activos y 6 inactivos), 4 responsables y 1 administrador de empresa**. Cada equipo tiene 10 empleados; la cuenta terminada en `.10@example.test` está inactiva. Las cuentas nuevas siguen el patrón `demo.producto.01@example.test`, `demo.soporte.01@example.test`, etc.; Desarrollo y Operaciones conservan sus empleados originales y añaden las cuentas `.02` a `.10`. Así se pueden explorar varias páginas del directorio, gestionar asignaciones y comparar los recuentos de empleados totales y activos.
+
+También genera alrededor de **8.500 entradas emocionales durante los últimos 180 días completos**, hasta ayer en Europe/Madrid, para las 59 cuentas activas, incluidos los administradores en su espacio personal. Hay días sin registro, días con dos entradas, todos los estados de ánimo, emociones e intensidades, factores laborales y personales, motivos personalizados y reflexiones completas o pendientes. Los equipos tienen distintas tasas de participación y distribuciones de ánimo. Las cuentas inactivas no reciben entradas.
+
+Usan la contraseña que proporcionaste en `DEMO_PASSWORD`. Los dominios son ficticios; para recuperación por correo usa una cuenta real o Mailpit local. Repetir el script conserva cuentas y contraseñas existentes y se detiene si una cuenta coincide por correo pero sus datos ya no coinciden con la demo. Los UUID de las entradas son estables por cuenta, fecha y registro: los reintentos omiten entradas ya existentes, respetan las que hayas editado y no duplican el historial. Si falla a mitad, puede haber datos parciales: se puede reejecutar tras resolver el error. No elimina datos.
+
+Los registros se crean con sesiones temporales de cada cuenta demo y las RPC existentes del diario, sin exponer su almacenamiento privado ni modificar permisos. Estas sesiones no envían correos ni cambian contraseñas, y se cierran al terminar. Las fechas emocionales son históricas, pero la actividad y las recompensas reflejan la fecha real de ejecución: la seed no inventa rachas históricas.
+
+Puedes revisar el volumen sin credenciales ni modificaciones, o ajustar el historial entre 7 y 365 días:
+
+```powershell
+npm run demo:seed -- --dry-run
+$env:DEMO_DAYS = "90"
+npm run demo:seed
+```
+
+La seed requiere las migraciones del diario y de evolución personal. **Administración muestra personas, equipos, asignaciones y cuentas activas; las gráficas de bienestar agregado todavía están pendientes de implementación.** Añadir esta seed no activa ese panel ni da acceso a diarios individuales desde administración.
 
 Los scripts administrativos rechazan URL remotas salvo que se añada `--allow-remote`, para evitar ejecutar una semilla por accidente en otro entorno:
 
@@ -136,7 +157,23 @@ npm run check
 npm audit --omit=dev
 ```
 
-Las pruebas usan PGlite, un motor PostgreSQL real embebido. Aplican la migración completa y simulan exclusivamente `auth.users`, `auth.uid()` y los roles de Supabase. Comprueban RLS, permisos SQL/RPC, bootstrap, empleados con un equipo, traslado entre equipos, escalada de roles, bajas con un JWT existente y esquemas privados. No necesitan Docker ni credenciales. **No verifican GoTrue, SMTP, cookies SSR ni PostgREST real**; los pasos manuales anteriores deben realizarse en el entorno configurado.
+Las pruebas predeterminadas usan PGlite, un motor PostgreSQL real embebido. Aplican todas las migraciones y emulan exclusivamente Auth y sus roles. Comprueban administración, RLS del diario, CRUD, aislamiento entre usuarios y ambos administradores, reintentos, filtros combinados, paginación y límites de día en zonas horarias con cambio de hora. No necesitan Docker ni credenciales. Estas pruebas por sí solas **no verifican GoTrue, SMTP, cookies SSR ni PostgREST real**.
+
+Para verificar el PostgreSQL alojado sin dejar datos de prueba:
+
+```powershell
+npm run test:db:linked
+```
+
+Para verificar Auth y PostgREST reales, con las claves de `.env.local` y un proyecto de demostración:
+
+```powershell
+npm run test:integration -- --allow-remote
+```
+
+Este último script crea cuatro cuentas y un equipo aislados. El cliente privilegiado se usa únicamente para preparar y eliminar esas identidades: todas las operaciones del diario se prueban con sesiones reales y la clave pública. El bloque de limpieza elimina exclusivamente esos UUID, también si una prueba falla. Sin `--allow-remote`, solo permite localhost. Nunca lo ejecutes para medir sobre diarios reales de empleados.
+
+La fase 3 se verificó además mediante Playwright/Edge en `http://localhost:3100`, escritorio 1440×1000 y móvil 390×844: login SSR, selección sin guardado automático, validación, fallo de red y reintento sin duplicación, consulta/edición, tarjetas/tabla, filtros, calendario, borrado con confirmación y dashboard real. Las cuentas de esa revisión se eliminaron al terminar. No se verificó SMTP ni recuperación por correo en esta fase.
 
 Con Supabase local arrancado:
 
@@ -146,15 +183,26 @@ supabase db advisors --local --type all --fail-on error
 npm run db:types
 ```
 
-El contrato de tipos inicial está alineado con esta migración. `db:types` genera tipos reales de `public`, añade los alias del dominio y solo reemplaza el archivo si la CLI termina correctamente. `schema.ts` conserva la nulabilidad intencional de los argumentos RPC de creación de equipos y perfiles administrativos, que la introspección no siempre refleja. Ejecuta `typecheck` después. Para cambios de esquema futuros crea una migración con `supabase migration new NOMBRE`, aplica y prueba localmente; no edites una migración ya aplicada a otro entorno.
+El contrato de tipos se regeneró desde el esquema alojado. `db:types` genera tipos reales de `public`, añade los alias del dominio y solo reemplaza el archivo si la CLI termina correctamente. Admite `npm run db:types -- --linked` para el proyecto enlazado. `schema.ts` conserva la nulabilidad intencional de los argumentos RPC de creación de equipos y perfiles administrativos, que la introspección no siempre refleja. Ejecuta `typecheck` después. Para cambios de esquema futuros crea una migración con `supabase migration new NOMBRE`, aplica y prueba; no edites una migración ya aplicada a otro entorno.
 
 Los paquetes de Supabase están fijados con versiones exactas y `package-lock.json`. shadcn es una herramienta de desarrollo, no una dependencia de ejecución. La auditoría de desarrollo informa de avisos en `braces` y sus consumidores (ESLint/shadcn), sin versión corregida disponible en el informe actual; no se fuerza una regresión de Next.js ni una versión incompatible de shadcn para ocultarlos. La auditoría de producción no presenta avisos en la verificación de esta fase.
 
-## Pendiente para habilitar una demo completa
+## Estado de la fase 3
 
-- Proporcionar URL y claves del proyecto.
-- Arrancar Supabase local o aplicar la migración al proyecto alojado.
-- Deshabilitar registro público en el proyecto alojado y configurar SMTP, origen y plantilla.
-- Crear el administrador inicial y, opcionalmente, los datos ficticios.
-- Ejecutar los flujos con Auth/SMTP reales y revisar advisors.
-- En próximas fases: diseño visual completo, diario privado, agregados con protección de anonimato, estadísticas personales, rachas e IA.
+Las migraciones del diario están aplicadas al proyecto Supabase enlazado. Pasaron las pruebas SQL alojadas, Auth/PostgREST, build, lint, tipos, 30 pruebas predeterminadas y la revisión de interfaz con sesiones reales. Se conservó el diseño existente. No se descargan todos los registros para filtrar: PostgreSQL devuelve páginas de 12 entradas y agrupaciones diarias limitadas al mes/semana. Los datos temporales de verificación se eliminaron.
+
+Pendiente: configurar la protección de contraseñas filtradas en Supabase Auth (único aviso restante de los advisors), verificar SMTP/recuperación por correo y desarrollar IA/recursos y agregados anónimos en las fases correspondientes.
+
+
+## Estado de la fase 4
+
+La migración `20261013004038_personal_evolution.sql` está aplicada al proyecto enlazado y los tipos públicos se regeneraron desde ese esquema. Pasaron lint, tipos, pruebas automatizadas y build de producción; también las suites SQL de diario/evolución y ambos scripts de integración con Auth/PostgREST reales. La suite de evolución incluye 10.000 entradas y verifica medias por día, huecos, DST, rachas, reflexiones no repetibles, recompensas únicas y privacidad frente a ambos administradores. Playwright/Edge comprobó estados vacíos y poblados, períodos de 7/30/90 días y personalizados, calendarios, varios registros de un día, acceso al detalle y cambio de zona en escritorio 1440×1000 y móvil 390×844, sin errores de consola ni desbordamiento horizontal. Los fixtures se eliminaron; las capturas están fuera del repositorio.
+
+Las rachas empiezan con acciones posteriores a la migración: no se inventa actividad histórica sin la zona personal que no se guardaba en la fase 3. El historial anterior sí aparece en las estadísticas. La zona se conserva entre dispositivos y se puede cambiar explícitamente en «Mi evolución».
+
+```powershell
+npm run test:db:evolution:linked
+npm run test:integration:evolution -- --allow-remote
+```
+
+Supabase Advisors no encontró avisos nuevos en esta fase; permanece la protección de contraseñas filtradas desactivada. No se verificó SMTP ni recuperación por correo. La actualización entre dispositivos es persistente; una pestaña ya abierta requiere recargar para ver cambios de otro dispositivo. Los agregados de equipos/empresa siguen pendientes y separados de estos datos personales.
