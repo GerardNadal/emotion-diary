@@ -160,11 +160,14 @@ test("phase-1 migration and authorization boundaries", async (t) => {
       await deny("select public.save_team(null,'Denied')");
       await deny("select public.bootstrap_admin($1,'Denied')", [orphan]);
     });
-    await t.test("reserved privacy schemas and audit logs are inaccessible to every application role", async () => {
+    await t.test("privacy tables and audit logs are inaccessible to every application role", async () => {
       for (const id of [company, manager, employeeA]) {
         await actor(id);
         await deny("select * from app_private.admin_audit");
-        assert.deepEqual(await rows("select has_schema_privilege(current_user,'journal_private','usage') as journal, has_schema_privilege(current_user,'reporting','usage') as reporting"), [{ journal: false, reporting: false }]);
+        assert.deepEqual(await rows("select has_schema_privilege(current_user,'journal_private','usage') as journal"), [{ journal: false }]);
+        await deny("select * from reporting.month_releases");
+        await deny("select * from reporting.team_state");
+        await deny("select * from reporting.policy");
       }
       await db.exec("reset role");
       const functions = await rows("select proname from pg_proc join pg_namespace n on n.oid=pronamespace where n.nspname='public' and prosecdef");

@@ -206,3 +206,20 @@ npm run test:integration:evolution -- --allow-remote
 ```
 
 Supabase Advisors no encontró avisos nuevos en esta fase; permanece la protección de contraseñas filtradas desactivada. No se verificó SMTP ni recuperación por correo. La actualización entre dispositivos es persistente; una pestaña ya abierta requiere recargar para ver cambios de otro dispositivo. Los agregados de equipos/empresa siguen pendientes y separados de estos datos personales.
+
+## Estado de la fase 5
+
+Los dashboards de `/team`, `/company` y `/admin/insights` usan publicaciones PostgreSQL reales mediante `collective_statistics`. Las migraciones `20261013064054_collective_reporting.sql` y `20261013070550_collective_reporting_privileges.sql` están aplicadas al Supabase vinculado; los tipos públicos se regeneraron desde ese esquema. Hay distribución de ánimo, emociones, intensidad, motivos/factores laborales, evolución de seis períodos, participación protegida y comparaciones entre equipos publicables, con estados explícitos de carga, error e insuficiencia y detalles ampliables.
+
+La política limita el análisis a meses y trimestres naturales cerrados, con umbral inicial configurable de 3 participantes reales, protección de categorías y complementos, redondeo, publicaciones únicas y retirada tras mutaciones históricas o cambios de plantilla. Los trimestres y la empresa reutilizan publicaciones seguras; los equipos protegidos no aportan a un total oculto. Cada participante pesa lo mismo, aunque registre muchas entradas. La metodología y los límites se describen en [docs/collective-reporting.md](docs/collective-reporting.md).
+
+**La trazabilidad de composición comienza al aplicar la migración.** No se atribuyen registros anteriores a una plantilla cuya historia se desconoce. Sin cambios de composición, el primer mes potencialmente publicable es noviembre de 2026, al cerrar el 1 de diciembre. Las retiradas históricas son definitivas para evitar diferencias entre dos versiones. El resumen de empresa representa equipos publicables con pesos iguales, no necesariamente toda la plantilla. No se usa privacidad diferencial ni se afirma una garantía formal frente a todo conocimiento externo.
+
+```powershell
+npm run test:db:reporting:linked
+npm run test:integration:reporting -- --allow-remote
+```
+
+Las suites PostgreSQL embebida y alojada prueban los límites de rol/equipo, RLS, grupos/categorías pequeñas, empresa frente a equipos suprimidos, períodos manipulados, peso de más de 6.000 entradas, traslados, altas/desactivaciones y cambios históricos. La integración usa Auth/PostgREST reales y verifica aislamiento y revocación con JWT vigente. Los fixtures SQL se revierten y las identidades de integración se eliminan. Sigue pendiente la configuración de protección de contraseñas filtradas de Auth.
+
+Verificación final: 39 pruebas automatizadas, lint, TypeScript y build correctos; suites SQL alojadas de diario, evolución y reporting correctas; integración Auth/PostgREST de reporting y regresión de evolución correctas. Playwright con Edge comprobó el sitio real en `http://127.0.0.1:3000`, escritorio 1440×1000 y móvil 390×844: SSR de empresa/equipo, selectores, trimestres, detalles, error de red/reintento y redirección de empleado, sin desbordamiento ni errores de aplicación. Un montaje externo identificado como QA ficticia comprobó los gráficos poblados con agregados calculados en PostgreSQL, sin alterar la línea base real. No estaba disponible el plugin Browser. Las capturas y scripts temporales se guardaron fuera del repositorio. Supabase Advisors no encontró avisos de rendimiento ni nuevos avisos de seguridad.

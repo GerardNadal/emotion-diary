@@ -12,6 +12,8 @@
     "test:integration": "node --env-file-if-exists=.env.local scripts/test-journal-live.mjs",
     "test:integration:evolution": "node --env-file-if-exists=.env.local scripts/test-evolution-live.mjs",
     "test:db:evolution:linked": "supabase db query --linked --file supabase/tests/evolution.sql",
+    "test:db:reporting:linked": "supabase db query --linked --file supabase/tests/reporting.sql",
+    "test:integration:reporting": "node --env-file-if-exists=.env.local scripts/test-reporting-live.mjs",
     "test:db:linked": "supabase db query --linked --file supabase/tests/journal.sql",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "auth:bootstrap": "node --env-file-if-exists=.env.local scripts/bootstrap-admin.mjs",

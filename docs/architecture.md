@@ -61,7 +61,7 @@ Una restricción exige un equipo para cada empleado, incluso desactivado. Los ad
 | Desactivar/reactivar usuarios | Sí, salvo sí mismo | Empleados de sus equipos | No |
 | Asignar responsables | Sí | No | No |
 | Leer diarios ajenos | Nunca | Nunca | Nunca |
-| Estadísticas futuras | Agregados de empresa | Agregados de sus equipos | Propias |
+| Estadísticas | Publicaciones de equipos seguros | Publicaciones de sus equipos | Propias |
 
 La administración de equipo no crea equipos ni reasigna responsables: estas operaciones modifican el alcance de autorización y pertenecen a la administración de empresa.
 
@@ -91,7 +91,7 @@ Auth y PostgreSQL no comparten una transacción HTTP. Si falla la creación del 
 
 `journal_private.entries` almacena los registros con UUID por entrada, propietario, cinco estados de ánimo, nueve emociones, intensidad 1–5, reflexión, categoría/motivo, motivo personalizado, actividad, reacción, apoyo, fecha del momento y fechas de creación/modificación. Las fechas usan `timestamptz`; no existe unicidad por día. `reason_catalog` restringe las parejas categoría/motivo. La interfaz, la validación y los filtros reutilizan `modules/journal/emotions.ts`; una prueba comprueba que el catálogo SQL y esa definición coinciden. Los índices empiezan por propietario y cubren fecha, emoción, intensidad y categoría.
 
-`journal_private` y `reporting` siguen sin exponerse a la Data API y sin permiso de uso para `anon`, `authenticated` o `service_role`. No hay vistas sobre entradas ni relaciones en los tipos públicos que permitan llegar a ellas desde perfiles administrativos.
+`journal_private` sigue sin exponerse a la Data API y sin permiso de uso para `anon`, `authenticated` o `service_role`. `reporting` tampoco se expone; desde la fase 5, `authenticated` tiene exclusivamente uso del esquema y ejecución del gateway agregado autorizado, sin acceso a tablas ni auxiliares. No hay vistas sobre entradas ni relaciones en los tipos públicos que permitan llegar a ellas desde perfiles administrativos.
 
 La API consta de cinco RPC públicas `SECURITY INVOKER`: `journal_save`, `journal_get`, `journal_list`, `journal_days` y `journal_delete`. Delegan en funciones de `app_private` con `search_path = ''`, propiedad de `emotion_journal_executor`. Este rol es `NOLOGIN`, `NOINHERIT`, `NOBYPASSRLS`, no es propietario de la tabla y no pertenece a ningún rol de aplicación. Solo tiene permisos necesarios para el diario, el catálogo y las funciones de identidad. **RLS se aplica también dentro de las RPC**, con `FORCE ROW LEVEL SECURITY` y `USING`/`WITH CHECK` por propietario activo, sin excepción administrativa. La FK del propietario usa perfiles, sin incluir datos emocionales en el directorio.
 
@@ -105,9 +105,9 @@ El dashboard consulta agregados emocionales de los últimos siete días y activi
 
 Las pruebas SQL versionadas se ejecutan tanto en PGlite como en Supabase alojado mediante una transacción con rollback. El script `test:integration` añade cuentas temporales para verificar Auth y PostgREST reales; usa el cliente privilegiado solo para las identidades de prueba. También se revisó el evento de infraestructura `public.rls_auto_enable()` preexistente en el proyecto alojado: conserva su funcionamiento como event trigger, pero se revocó su ejecución como endpoint por roles de aplicación.
 
-## Agregados futuros
+## Estadísticas colectivas · Fase 5
 
-Los agregados futuros se expondrán mediante una API específica de `reporting` que valide el alcance actual, aplique un umbral mínimo de participantes y devuelva únicamente medidas anónimas; nunca UUID de empleados, textos individuales o series que permitan reconstruir entradas. Habrá que decidir tamaño mínimo, periodos y protección contra diferencias entre consultas antes de implementar estadísticas. Una vista pública con permisos elevados no sería una separación suficiente.
+`collective_statistics` valida identidad, rol, actividad y equipo en PostgreSQL. El ejecutor específico de reporting es NOLOGIN/NOBYPASSRLS, con SELECT solo de columnas estructuradas y sin acceso a textos del diario. Genera una publicación mensual única por equipo, con supresión por participantes/categorías/complementos, redondeo y protección de conjuntos sucesivos. Los cambios de composición y las mutaciones históricas retiran publicaciones. Los trimestres y la empresa operan únicamente sobre publicaciones seguras; los equipos pequeños no forman parte de un total oculto. La metodología, límites y pruebas se documentan en [collective-reporting.md](collective-reporting.md).
 
 La restricción aplica a los administradores de la aplicación. Los operadores con credenciales de infraestructura/SQL de Supabase conservan privilegios técnicos: no deben entregarse esas claves a usuarios de los tres roles.
 

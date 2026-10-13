@@ -118,6 +118,10 @@ export type Database = {
         Args: { p_full_name: string; p_id: string }
         Returns: string
       }
+      collective_statistics: {
+        Args: { p_grain?: string; p_period: string; p_team_id: string }
+        Returns: Json
+      }
       journal_days: { Args: { p_query: Json }; Returns: Json }
       journal_delete: { Args: { p_ids: string[] }; Returns: number }
       journal_get: { Args: { p_id: string }; Returns: Json }
